@@ -1,0 +1,92 @@
+body {
+    font: 20px Montserrat, sans-serif;
+    line-height: 1.8;
+    color: black;
+  }
+  p {font-size: 16px;}
+  .margin {margin-bottom: 45px;}
+  .bg-1 {
+    background-color: #1abc9c; /* Green */
+    color: white;
+    text-align: center;
+  }
+  .bg-2 {
+    background-color: #474e5d; /* Dark Blue */
+    color: #ffffff;
+  }
+  .bg-3 {
+    background-color: #ffffff; /* White */
+    color: #555555;
+  }
+
+  #myNavbar{
+   width :100%
+   padding-top: 15px;
+    padding-bottom: 15px;
+    border: 0;
+    border-radius: 0;
+    margin-bottom: 0;
+    font-size: 12px;
+    letter-spacing: 5px;
+    text-align: center;
+
+  }
+  .bg-4 {
+    background-color: #2f2f2f; /* Black Gray */
+    color: #fff;
+  }
+  .container-fluid {
+    padding-top: 70px;
+    padding-bottom: 70px;
+  }
+  .navbar {
+    padding-top: 15px;
+    padding-bottom: 15px;
+    border: 0;
+    border-radius: 0;
+    margin-bottom: 0;
+    font-size: 20px;
+    letter-spacing: 5px;
+  }
+  .navbar-nav  li a:hover {
+    color: #1abc9c !important;
+  }
+
+  .search_col{
+    padding: 0px 5px 0px 15px;
+  }
+
+  .longtarea{
+    width: 25%;
+  }
+
+  .lefthalf{
+    float:left;
+    width:40%;
+  }
+
+  .smalltext{
+    font-size:16px;
+
+  }
+  .smalltext1{
+    font-size:14px;
+    display:none;
+  }
+
+  .righthalf{
+    float:right;
+    width:60%;
+  }
+
+table, th, td {
+  border : 0;
+  color:black;
+}
+
+
+th{
+	background-color: #808080;
+	color: black;
+}
+
