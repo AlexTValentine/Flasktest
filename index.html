@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+    <style>
+    /* Remove the navbar's default margin-bottom and rounded borders */
+    .navbar {
+      margin-bottom: 0;
+      border-radius: 0;
+    }
+    .navbar-brand {
+    color: #4CAF50;
+    }
+    /* Add a gray background color and some padding to the footer */
+    footer {
+      background-color: #f2f2f2;
+      padding: 25px;
+    }
+#text {
+  border-collapse: collapse; /* Collapse borders */
+  width: 100%; /* Full-width */
+  border: 1px solid #ddd; /* Add a grey border */
+  font-size: 18px; /* Increase font-size */
+}
+#text th, #text td {
+  text-align: left; /* Left-align text */
+  padding: 12px; /* Add padding */
+}
+#text tr {
+  /* Add a bottom border to all table rows */
+  border-bottom: 1px solid #ddd;
+}
+#text tr.header, #text tr:hover {
+  /* Add a grey background color to the table header and on hover */
+  background-color: #f1f1f1;
+}
+input[type=button], input[type=submit], #btn {
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+  padding: 16px 28px;
+  text-decoration: none;
+  margin: 4px 2px;
+  cursor: pointer;
+}
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <p class="navbar-brand" href="#">Shell Companies Search<p>
+        </div>
+        <div class="collapse navbar-collapse" id="myNavbar">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="jumbotron">
+    <div class="container text-center">
+          <center>
+    <form class="form-horizontal" action = "/upload" method = "post"
+      enctype = "multipart/form-data">
+        <div class="form-group">
+      <input type="file" name="file"><br/>
+      <input type="submit" class="btn" value="Process File"><br/>
+        </div>
+        <br/>
+        <br/>
+    </form>
+</center>
+        <form id="form" class="form-horizontal">
+            <div class="form-group">
+                <label for="rid" class="search_col">Request ID:</label>
+                <input type="text" id="rid" onkeyup="myFunction()">&nbsp;&nbsp;&nbsp;
+                <label for="cname" class="search_col">Company Name:</label>
+                <input type="text" id="cname" onkeyup="cFunction()">&nbsp;&nbsp;&nbsp;
+                <label for="rscore" class="search_col">Risk Status:</label>
+                <input type="text" id="rscore" onkeyup="rFunction()">&nbsp;&nbsp;&nbsp;
+            </div>
+        </form>
+    </div>
+</div>
+<div class="table-responsive">
+    <table id='text' class="table table-hover">
+        <thead>
+        <tr>
+            <th>Request ID</th>
+            <th>Company Name</th>
+            <th>No.of page 1 hits</th>
+            <th>No.of page 2 hits</th>
+            <th>No.of page 3 hits</th>
+            <th>Risk Status</th>
+        </tr>
+        </thead>
+        {% for index, row in data.iterrows(): %}
+<tbody>
+        <tr>
+            <td>{{row['id']}}</td>
+            <td><a href="https://www.googleapis.com/customsearch/v1?key=AIzaSyBVyGDJi0wtQnZCQVmeYHhp2oziYvqo-2I&cx=017871694751435837305:_em_2x9kobm&q={{row['company_name']}}"/>{{row['company_name']}}</td>
+            <td>{{row["page1_hits"]}}</td>
+            <td>{{row["page2_hits"]}}</td>
+            <td>{{row["page3_hits"]}}</td>
+            {% if row["risk_rating"] == 'Red': %}
+            <td bgcolor="#b80c00" style="color:white;">{{row["risk_rating"]}}</td>
+            {% elif row["risk_rating"] == 'Amber': %}
+            <td bgcolor="#ffc400" style="color:white;">{{row["risk_rating"]}}</td>
+            {% else: %}
+            <td bgcolor="#00b83a" style="color:white;">{{row["risk_rating"]}}</td>
+            {% endif %}
+</tr>
+        </tbody>
+        {% endfor %}
+ </table>
+        <button id='btn' onclick="download_table_as_csv('text');">Download</button>
+
+    <script>
+    function download_table_as_csv(table_id) {
+    // Select rows from table_id
+    var rows = document.querySelectorAll('table#' + table_id + ' tr');
+    // Construct csv
+    var csv = [];
+    for (var i = 0; i < rows.length; i++) {
+        var row = [], cols = rows[i].querySelectorAll('td, th');
+        for (var j = 0; j < cols.length; j++) {
+            // Clean innertext to remove multiple spaces and jumpline (break csv)
+            var data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, '').replace(/(\s\s)/gm, ' ')
+            // Escape double-quote with double-double-quote (see https://stackoverflow.com/questions/17808511/properly-escape-a-double-quote-in-csv)
+            data = data.replace(/"/g, '""');
+            // Push escaped string
+            row.push('"' + data + '"');
+        }
+        csv.push(row.join(','));
+    }
+    var csv_string = csv.join('\n');
+    // Download it
+    var filename = 'shell_search_results'+ '_' + new Date().toLocaleDateString() + '.csv';
+    var link = document.createElement('a');
+    link.style.display = 'none';
+    link.setAttribute('target', '_blank');
+    link.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv_string));
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+  </script>
+
+
+    <script>
+function myFunction() {
+  // Declare variables
+  var input, filter, table, tr, td, i, txtValue;
+  input = document.getElementById("rid");
+  filter = input.value.toUpperCase();
+  table = document.getElementById("text");
+  tr = table.getElementsByTagName("tr");
+  // Loop through all table rows, and hide those who don't match the search query
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[0];
+    if (td) {
+      txtValue = td.textContent || td.innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    }
+  }
+}
+</script>
+    <script>
+function cFunction() {
+  // Declare variables
+  var input, filter, table, tr, td, i, txtValue;
+  input = document.getElementById("cname");
+  filter = input.value.toUpperCase();
+  table = document.getElementById("text");
+  tr = table.getElementsByTagName("tr");
+  // Loop through all table rows, and hide those who don't match the search query
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[1];
+    if (td) {
+      txtValue = td.textContent || td.innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    }
+  }
+}
+</script>
+<script>
+function rFunction() {
+  // Declare variables
+  var input, filter, table, tr, td, i, txtValue;
+  input = document.getElementById("rscore");
+  filter = input.value.toUpperCase();
+  table = document.getElementById("text");
+  tr = table.getElementsByTagName("tr");
+  // Loop through all table rows, and hide those who don't match the search query
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[3];
+    if (td) {
+      txtValue = td.textContent || td.innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    }
+  }
+}
+</script>
+</div>
+
+<script>
+    function search_this(form){
+        var y = document.getElementById("bpid").value;
+        var x = document.getElementById(y).href;
+        window.open(x,"_blank");
+        window.top.close();
+    }
+</script>
+</body>
+</html>
+
